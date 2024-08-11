@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/asteroids/static/css/main.e665dbd7.css",
+    "main.js": "/asteroids/static/js/main.1013bdb5.js",
+    "index.html": "/asteroids/index.html",
+    "main.e665dbd7.css.map": "/asteroids/static/css/main.e665dbd7.css.map",
+    "main.1013bdb5.js.map": "/asteroids/static/js/main.1013bdb5.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e665dbd7.css",
+    "static/js/main.1013bdb5.js"
+  ]
+}
