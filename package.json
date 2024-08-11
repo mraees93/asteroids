@@ -1,5 +1,5 @@
 {
-  "homepage":"https://mraees93.github.io/asteroids",
+  "homepage": "https://mraees93.github.io/asteroids",
   "name": "saga",
   "version": "0.1.0",
   "private": true,
@@ -12,7 +12,7 @@
     "react-bootstrap": "^2.8.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.1.2",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "redux": "^4.2.1",
     "redux-saga": "^1.2.3",
     "web-vitals": "^2.1.4"
