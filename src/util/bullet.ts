@@ -1,17 +1,22 @@
+import { Vector2D } from "../state/reducer";
+
+export interface BulletConfig {
+  position: Vector2D;
+  velocity: Vector2D;
+}
+
 export class Bullet {
-  position: any;
-  radius: any;
-  velocity: any;
-  constructor({
-    position,
-    velocity
-  }: any) {
+  public position: Vector2D;
+  public radius: number;
+  public velocity: Vector2D;
+
+  constructor({ position, velocity }: BulletConfig) {
     this.position = position;
     this.velocity = velocity;
     this.radius = 5;
   }
 
-  draw(context: any) {
+  public draw(context: CanvasRenderingContext2D): void {
     context.beginPath();
     context.arc(
       this.position.x,
@@ -26,7 +31,7 @@ export class Bullet {
     context.fill();
   }
 
-  update(context: any) {
+  public update(context: CanvasRenderingContext2D): void {
     this.draw(context);
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;

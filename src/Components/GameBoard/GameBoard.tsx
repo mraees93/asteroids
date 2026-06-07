@@ -5,20 +5,21 @@ import Score from "../Score/Score";
 import AllScoresModal from "../AllScoresModal/AllScoresModal";
 import GameControlButtons from "../GameControlButtons/GameControlButtons";
 import { getAllScores } from "../../state/actions";
-// @ts-expect-error TS(2307): Cannot find module 'react-bootstrap/Modal' or its ... Remove this comment to see the full error message
 import Modal from "react-bootstrap/Modal";
-// @ts-expect-error TS(2307): Cannot find module 'react-bootstrap/Button' or its... Remove this comment to see the full error message
 import Button from "react-bootstrap/Button";
 
 export default function GameBoard() {
   const dispatch = useDispatch();
 
-  const [showInstructionsModal, setShowInstructionsModal] = useState(true);
+  const [showInstructionsModal, setShowInstructionsModal] = useState<boolean>(true);
   const handleCloseInstructionsModal = () => setShowInstructionsModal(false);
 
   useEffect(() => {
-    // @ts-expect-error TS(2345): Argument of type 'string | null' is not assignable... Remove this comment to see the full error message
-    dispatch(getAllScores(JSON.parse(sessionStorage.getItem("Scores"))));
+    const rawScores = sessionStorage.getItem("Scores");
+    
+    const parsedScores: number[] | null = rawScores ? JSON.parse(rawScores) : null;
+    
+    dispatch(getAllScores(parsedScores));
   }, [dispatch]);
 
   return (
@@ -29,8 +30,8 @@ export default function GameBoard() {
         </Modal.Header>
         <Modal.Body>
           <p>
-            Goal: Shoot as many asteroids as possible before dying(you die when
-            you bump into an asteroid) and check your high scores{" "}
+            Goal: Shoot as many asteroids as possible before dying (you die when
+            you bump into an asteroid) and check your high scores.
           </p>
           <p>W key - move player forward</p>
           <p>UP arrow key - move player forward</p>

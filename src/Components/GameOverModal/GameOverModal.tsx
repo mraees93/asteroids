@@ -1,22 +1,20 @@
-import { useEffect, useState } from "react";
-// @ts-expect-error TS(2307): Cannot find module 'react-bootstrap/Button' or its... Remove this comment to see the full error message
+import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
-// @ts-expect-error TS(2307): Cannot find module 'react-bootstrap/Modal' or its ... Remove this comment to see the full error message
 import Modal from "react-bootstrap/Modal";
 import { useSelector } from "react-redux";
+import { RootState } from "../../state/store";
 import { addScoresAndResetGame } from "../../util/utilsToAnimateCanvas";
 
-export default function GameOverModal({
-  handleStartNewGame
-}: any) {
-  // @ts-expect-error TS(2571): Object is of type 'unknown'.
-  const gameOver = useSelector((state) => state.gameOver);
-  // @ts-expect-error TS(2571): Object is of type 'unknown'.
-  const gameOverClick = useSelector((state) => state.gameOverClick);
-  // @ts-expect-error TS(2571): Object is of type 'unknown'.
-  const gameStart = useSelector((state) => state.startGame);
+interface GameOverModalProps {
+  handleStartNewGame: () => void;
+}
 
-  const [showGameOverModal, setShowGameOverModal] = useState(false);
+export default function GameOverModal({ handleStartNewGame }: GameOverModalProps) {
+  const gameOver = useSelector((state: RootState) => state.gameOver);
+  const gameOverClick = useSelector((state: RootState) => state.gameOverClick);
+  const gameStart = useSelector((state: RootState) => state.startGame);
+
+  const [showGameOverModal, setShowGameOverModal] = useState<boolean>(false);
 
   const handleCloseModal = () => setShowGameOverModal(false);
 

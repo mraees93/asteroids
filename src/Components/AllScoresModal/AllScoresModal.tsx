@@ -1,26 +1,23 @@
-import { useState } from "react";
-// @ts-expect-error TS(2307): Cannot find module 'react-bootstrap/Button' or its... Remove this comment to see the full error message
+import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
-// @ts-expect-error TS(2307): Cannot find module 'react-bootstrap/Modal' or its ... Remove this comment to see the full error message
 import Modal from "react-bootstrap/Modal";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllScores } from "../../state/actions";
+import { RootState } from "../../state/store";
 
 export default function AllScoresModal() {
-  const [showAllScoresModal, setShowAllScoresModal] = useState(false);
+  const [showAllScoresModal, setShowAllScoresModal] = useState<boolean>(false);
 
-  // @ts-expect-error TS(2571): Object is of type 'unknown'.
-  const scores = useSelector((state) => state.scores);
-  // @ts-expect-error TS(2571): Object is of type 'unknown'.
-  const gameStart = useSelector((state) => state.startGame);
-  // @ts-expect-error TS(2571): Object is of type 'unknown'.
-  const gameOver = useSelector((state) => state.gameOver);
+  const scores = useSelector((state: RootState) => state.scores);
+  const gameStart = useSelector((state: RootState) => state.startGame);
+  const gameOver = useSelector((state: RootState) => state.gameOver);
 
   const dispatch = useDispatch();
 
   const handleGetUsersScores = () => {
-    // @ts-expect-error TS(2345): Argument of type 'string | null' is not assignable... Remove this comment to see the full error message
-    dispatch(getAllScores(JSON.parse(sessionStorage.getItem("Scores"))));
+    const rawScores = sessionStorage.getItem("Scores");
+    const parsedScores: number[] | null = rawScores ? JSON.parse(rawScores) : null;
+    dispatch(getAllScores(parsedScores));
   };
 
   const handleCloseAllScoresModal = () => setShowAllScoresModal(false);
@@ -60,9 +57,9 @@ export default function AllScoresModal() {
                   Score 1: <b style={{ color: "blue" }}>{scores}</b>
                 </p>
               ) : (
-                scores
-                  .sort((a: any, b: any) => b - a)
-                  .map((score: any, idx: any) => (
+                [...scores]
+                  .sort((a: number, b: number) => b - a)
+                  .map((score: number, idx: number) => (
                     <p key={idx}>
                       Score {idx + 1}: <b style={{ color: "blue" }}>{score}</b>
                     </p>

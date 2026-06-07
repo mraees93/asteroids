@@ -1,17 +1,22 @@
+import { Vector2D } from "../state/reducer";
+
+export interface PlayerConfig {
+  position: Vector2D;
+  velocity: Vector2D;
+}
+
 export class Player {
-  position: any;
-  rotation: any;
-  velocity: any;
-  constructor({
-    position,
-    velocity
-  }: any) {
+  public position: Vector2D;
+  public rotation: number;
+  public velocity: Vector2D;
+
+  constructor({ position, velocity }: PlayerConfig) {
     this.position = position;
     this.velocity = velocity;
     this.rotation = 0;
   }
 
-  draw(context: any) {
+  public draw(context: CanvasRenderingContext2D): void {
     context.save();
 
     context.translate(this.position.x, this.position.y);
@@ -32,13 +37,14 @@ export class Player {
     context.restore();
   }
 
-  update(context: any) {
+  public update(context: CanvasRenderingContext2D): void {
     this.draw(context);
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
   }
 
-  getVertices() {
+  // Enforce an absolute vector coordinate list signature for collision calculations
+  public getVertices(): Vector2D[] {
     const cos = Math.cos(this.rotation);
     const sin = Math.sin(this.rotation);
 

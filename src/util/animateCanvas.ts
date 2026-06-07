@@ -10,6 +10,8 @@ import {
 } from "../state/actions";
 import { Player } from "./player";
 import { Bullet } from "./bullet";
+import { Asteroid } from "./asteroid";
+import { GameEntity } from "../state/reducer";
 import {
   removeObjectsIfOffCanvas,
   keys,
@@ -26,27 +28,26 @@ const SPEED = 3;
 const ROTATIONAL_SPEED = 0.05;
 const FRICTION = 0.97;
 const BULLET_SPEED = 3;
-let player: any;
+
+let playerInstance: Player | null = null;
 let asteroidID = 0;
 
-export function animateCanvas(context: any) {
+export function animateCanvas(timestamp: number): void {
   asteroidID++;
-  context = store.getState().canvas;
+  
+  const activeCanvas = store.getState().canvas;
   const startGame = store.getState().startGame;
   const gameOver = store.getState().gameOver;
+  
   const animationId = window.requestAnimationFrame(animateCanvas);
   const radius = 50 * Math.random() + 10;
 
-  if (!player) {
-    store.dispatch(
-      setPlayer(
-        new Player({
-          position: { x: canvasWidth / 2, y: canvasHeight / 2 },
-          velocity: { x: 0, y: 0 },
-        })
-      )
-    );
-    player = store.getState().player;
+  if (!playerInstance) {
+    playerInstance = new Player({
+      position: { x: canvasWidth / 2, y: canvasHeight / 2 },
+      velocity: { x: 0, y: 0 },
+    });
+    store.dispatch(setPlayer(playerInstance as any));
   }
 
   if (asteroidID % 50 === 0) {
@@ -60,75 +61,78 @@ export function animateCanvas(context: any) {
     return;
   }
 
-  context.fillStyle = "black";
-  context.fillRect(0, 0, canvasWidth, canvasHeight);
-  player.update(context);
+  if (activeCanvas && playerInstance) {
+    activeCanvas.fillStyle = "black";
+    activeCanvas.fillRect(0, 0, canvasWidth, canvasHeight);
+    playerInstance.update(activeCanvas);
 
-  const bullets = store.getState().bullets;
+    const bullets = store.getState().bullets;
 
-  for (let i = bullets.length - 1; i >= 0; i--) {
-    const bullet = bullets[i];
-    // @ts-expect-error TS(2532): Object is possibly 'undefined'.
-    bullet.update(context);
-
-    removeObjectsIfOffCanvas(bullet, context, i);
-  }
-
-  asteroids = store.getState().asteroids;
-
-  for (let i = asteroids.length - 1; i >= 0; i--) {
-    const asteroid = asteroids[i];
-    // @ts-expect-error TS(2532): Object is possibly 'undefined'.
-    asteroid.update(context);
-
-    if (playerCollidesWithAsteroid(asteroid, player.getVertices())) {
-      store.dispatch(setGameOver(true));
-      store.dispatch(setGameOverClick(false));
+    for (let i = bullets.length - 1; i >= 0; i--) {
+      const bullet = bullets[i] as unknown as Bullet;
+      if (bullet && typeof bullet.update === "function") {
+        bullet.update(activeCanvas);
+      }
+      removeObjectsIfOffCanvas(bullet, activeCanvas, i);
     }
 
-    removeObjectsIfOffCanvas(asteroid, context, i);
+    asteroids = store.getState().asteroids;
 
-    for (let j = bullets.length - 1; j >= 0; j--) {
-      const bullet = bullets[j];
+    for (let i = asteroids.length - 1; i >= 0; i--) {
+      const asteroid = asteroids[i] as unknown as Asteroid;
+      if (asteroid && typeof asteroid.update === "function") {
+        asteroid.update(activeCanvas);
+      }
 
-      if (bulletCollidesWithAsteroid(asteroid, bullet)) {
-        if (radius >= 1 && radius <= 30) {
-          store.dispatch(addPoints(5));
+      if (asteroid && playerCollidesWithAsteroid(asteroid, playerInstance.getVertices())) {
+        store.dispatch(setGameOver(true));
+        store.dispatch(setGameOverClick(false));
+      }
+
+      removeObjectsIfOffCanvas(asteroid, activeCanvas, i);
+
+      for (let j = bullets.length - 1; j >= 0; j--) {
+        const bullet = bullets[j] as unknown as Bullet;
+        if (asteroid && bullet && bulletCollidesWithAsteroid(asteroid, bullet)) {
+          if (radius >= 1 && radius <= 30) {
+            store.dispatch(addPoints(5));
+          }
+          if (radius > 30) {
+            store.dispatch(addPoints(1));
+          }
+          store.dispatch(removeBullets(j));
+          store.dispatch(removeAsteroids(i));
         }
-        if (radius > 30) {
-          store.dispatch(addPoints(1));
-        }
-        store.dispatch(removeBullets(j));
-
-        store.dispatch(removeAsteroids(i));
       }
     }
-  }
 
-  if (keys.w.pressed || keys.forward.pressed) {
-    player.velocity.x = Math.cos(player.rotation) * SPEED;
-    player.velocity.y = Math.sin(player.rotation) * SPEED;
-    return;
-  } else if (!keys.w.pressed || !keys.forward.pressed) {
-    player.velocity.x *= FRICTION;
-    player.velocity.y *= FRICTION;
-  }
+    if (keys.w.pressed || keys.forward.pressed) {
+      playerInstance.velocity.x = Math.cos(playerInstance.rotation) * SPEED;
+      playerInstance.velocity.y = Math.sin(playerInstance.rotation) * SPEED;
+      return;
+    } else {
+      playerInstance.velocity.x *= FRICTION;
+      playerInstance.velocity.y *= FRICTION;
+    }
 
-  if (keys.s.pressed || keys.reverse.pressed) {
-    player.velocity.x = -Math.cos(player.rotation) * SPEED;
-    player.velocity.y = -Math.sin(player.rotation) * SPEED;
-    return;
-  } else if (!keys.s.pressed || !keys.reverse.pressed) {
-    player.velocity.x *= -FRICTION;
-    player.velocity.y *= -FRICTION;
-  }
+    if (keys.s.pressed || keys.reverse.pressed) {
+      playerInstance.velocity.x = -Math.cos(playerInstance.rotation) * SPEED;
+      playerInstance.velocity.y = -Math.sin(playerInstance.rotation) * SPEED;
+      return;
+    } else {
+      playerInstance.velocity.x *= -FRICTION;
+      playerInstance.velocity.y *= -FRICTION;
+    }
 
-  if (keys.d.pressed || keys.right.pressed) player.rotation += ROTATIONAL_SPEED;
-  else if (keys.a.pressed || keys.left.pressed)
-    player.rotation -= ROTATIONAL_SPEED;
+    if (keys.d.pressed || keys.right.pressed) playerInstance.rotation += ROTATIONAL_SPEED;
+    else if (keys.a.pressed || keys.left.pressed)
+      playerInstance.rotation -= ROTATIONAL_SPEED;
+  }
 }
 
-export function keydownCallback(event: any) {
+export function keydownCallback(event: KeyboardEvent): void {
+  if (!playerInstance) return;
+
   switch (event.code) {
     case "KeyW":
       keys.w.pressed = true;
@@ -162,14 +166,14 @@ export function keydownCallback(event: any) {
         setBullets(
           new Bullet({
             position: {
-              x: player.position.x + Math.cos(player.rotation) * 30,
-              y: player.position.y + Math.sin(player.rotation) * 30,
+              x: playerInstance.position.x + Math.cos(playerInstance.rotation) * 30,
+              y: playerInstance.position.y + Math.sin(playerInstance.rotation) * 30,
             },
             velocity: {
-              x: Math.cos(player.rotation) * BULLET_SPEED,
-              y: Math.sin(player.rotation) * BULLET_SPEED,
+              x: Math.cos(playerInstance.rotation) * BULLET_SPEED,
+              y: Math.sin(playerInstance.rotation) * BULLET_SPEED,
             },
-          })
+          }) as unknown as GameEntity
         )
       );
       break;
@@ -178,7 +182,7 @@ export function keydownCallback(event: any) {
   }
 }
 
-export function keyupCallback(event: any) {
+export function keyupCallback(event: KeyboardEvent): void {
   switch (event.code) {
     case "KeyW":
       keys.w.pressed = false;
@@ -209,8 +213,7 @@ export function keyupCallback(event: any) {
   }
 }
 
-export function eventListeners(window: any) {
-  window.addEventListener("keydown", keydownCallback);
-
-  window.addEventListener("keyup", keyupCallback);
+export function eventListeners(windowElement: Window): void {
+  windowElement.addEventListener("keydown", keydownCallback);
+  windowElement.addEventListener("keyup", keyupCallback);
 }

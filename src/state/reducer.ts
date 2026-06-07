@@ -1,6 +1,37 @@
 import types from "./types";
 
-const initialState = {
+export interface Vector2D {
+  x: number;
+  y: number;
+}
+
+export interface GameEntity {
+  x: Vector2D;
+  y: Vector2D;
+  radius: number;
+  [key: string]: any; 
+}
+
+export interface GameState {
+  canvas: CanvasRenderingContext2D | null;
+  canvasWidth: number;
+  canvasHeight: number;
+  player: GameEntity | null;
+  bullets: GameEntity[];
+  asteroids: GameEntity[];
+  startGame: boolean;
+  score: number;
+  scores: number[] | null;
+  gameOver: boolean;
+  gameOverClick: boolean;
+}
+
+export interface GameAction {
+  type: string;
+  payload?: any; 
+}
+
+const initialState: GameState = {
   canvas: null,
   canvasWidth: 1000,
   canvasHeight: 500,
@@ -14,15 +45,17 @@ const initialState = {
   gameOverClick: false,
 };
 
-const reducer = (state = initialState, action: any) => {
+const reducer = (state: GameState = initialState, action: GameAction): GameState => {
   switch (action.type) {
     case types.RESET_GAME:
-      const updatedScores =
-        state.scores === null
-          ? null
-          : typeof state.scores === "number"
-          ? [state.scores, state.score]
-          : [...state.scores, state.score];
+      let updatedScores: number[] | null = null;
+      
+      if (state.scores !== null) {
+        updatedScores = [...state.scores, state.score];
+      } else {
+        updatedScores = [state.score];
+      }
+
       return {
         ...state,
         player: null,

@@ -1,3 +1,4 @@
+import React from "react";
 import { fireEvent, render, screen, act } from "@testing-library/react";
 import { Provider } from "react-redux";
 import store from "../../state/store";
@@ -5,6 +6,7 @@ import { Player } from "../../util/player";
 import { Asteroid } from "../../util/asteroid";
 import { Bullet } from "../../util/bullet";
 import GameBoard from "./GameBoard";
+import { GameEntity } from "../../state/reducer";
 import {
   setPlayer,
   setAsteroids,
@@ -12,13 +14,12 @@ import {
   addPoints,
 } from "../../state/actions";
 
-let gameBoardComponent: any;
+// 1. Explicitly type your shared test component harness using the standard JSX type boundary
+let gameBoardComponent: React.JSX.Element;
 
 beforeEach(() => {
   gameBoardComponent = (
-    // @ts-expect-error TS(2749): 'Provider' refers to a value, but is being used as... Remove this comment to see the full error message
     <Provider store={store}>
-      // @ts-expect-error TS(2749): 'GameBoard' refers to a value, but is being used a... Remove this comment to see the full error message
       <GameBoard />
     </Provider>
   );
@@ -34,8 +35,10 @@ describe("GameBoard component", () => {
     render(gameBoardComponent);
     const startNewGameButton = screen.queryByText("Start new game");
 
-    // @ts-expect-error TS(2345): Argument of type 'HTMLElement | null' is not assig... Remove this comment to see the full error message
-    fireEvent.click(startNewGameButton);
+    // 2. Wrap DOM action triggers in a defensive safety guard block to handle potential null pointers smoothly
+    if (startNewGameButton) {
+      fireEvent.click(startNewGameButton);
+    }
 
     expect(store.getState().startGame).toBeTruthy();
   });
@@ -52,7 +55,7 @@ describe("GameBoard component", () => {
     });
 
     act(() => {
-      store.dispatch(setPlayer(player));
+      store.dispatch(setPlayer(player as unknown as GameEntity));
     });
 
     expect(store.getState().player).toBe(player);
@@ -62,22 +65,16 @@ describe("GameBoard component", () => {
     render(gameBoardComponent);
 
     const asteroid = new Asteroid({
-      position: {
-        x: 1,
-        y: 2,
-      },
-      velocity: {
-        x: 3,
-        y: 4,
-      },
+      position: { x: 1, y: 2 },
+      velocity: { x: 3, y: 4 },
       radius: 5,
     });
 
-    // @ts-expect-error TS(2345): Argument of type 'Asteroid' is not assignable to p... Remove this comment to see the full error message
-    expect(store.getState().asteroids.includes(asteroid)).toBeFalsy();
+    // 3. Typecast class instances as generic GameEntities to match your Redux state layout contracts
+    expect(store.getState().asteroids.includes(asteroid as unknown as GameEntity)).toBeFalsy();
 
     act(() => {
-      store.dispatch(setAsteroids(asteroid));
+      store.dispatch(setAsteroids(asteroid as unknown as GameEntity));
     });
 
     expect(store.getState().asteroids[0]).toBe(asteroid);
@@ -87,21 +84,14 @@ describe("GameBoard component", () => {
     render(gameBoardComponent);
 
     const bullet = new Bullet({
-      position: {
-        x: 1,
-        y: 2,
-      },
-      velocity: {
-        x: 3,
-        y: 4,
-      },
+      position: { x: 1, y: 2 },
+      velocity: { x: 3, y: 4 },
     });
 
-    // @ts-expect-error TS(2345): Argument of type 'Bullet' is not assignable to par... Remove this comment to see the full error message
-    expect(store.getState().bullets.includes(bullet)).toBeFalsy();
+    expect(store.getState().bullets.includes(bullet as unknown as GameEntity)).toBeFalsy();
 
     act(() => {
-      store.dispatch(setBullets(bullet));
+      store.dispatch(setBullets(bullet as unknown as GameEntity));
     });
 
     expect(store.getState().bullets[0]).toBe(bullet);
@@ -126,8 +116,9 @@ describe("GameBoard component", () => {
     render(gameBoardComponent);
     const resetButton = screen.queryByText("Stop / Reset game");
 
-    // @ts-expect-error TS(2345): Argument of type 'HTMLElement | null' is not assig... Remove this comment to see the full error message
-    fireEvent.click(resetButton);
+    if (resetButton) {
+      fireEvent.click(resetButton);
+    }
 
     expect(store.getState().gameOverClick).toBeTruthy();
     expect(store.getState().startGame).toBeFalsy();
@@ -145,8 +136,9 @@ describe("GameBoard component", () => {
     render(gameBoardComponent);
     const seeYourScoresButton = screen.queryByText("See your scores");
 
-    // @ts-expect-error TS(2345): Argument of type 'HTMLElement | null' is not assig... Remove this comment to see the full error message
-    fireEvent.click(seeYourScoresButton);
+    if (seeYourScoresButton) {
+      fireEvent.click(seeYourScoresButton);
+    }
 
     const scoresModalText = screen.getByTestId("allScoresID").textContent;
 

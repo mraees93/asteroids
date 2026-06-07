@@ -1,14 +1,14 @@
+import React from "react";
 import GameControlButtons from "./GameControlButtons";
 import { render, screen } from "@testing-library/react";
 import { Provider } from "react-redux";
 import store from "../../state/store";
-let gameControlButtonsComponent: any;
+
+let gameControlButtonsComponent: React.JSX.Element;
 
 beforeEach(() => {
   gameControlButtonsComponent = (
-    // @ts-expect-error TS(2749): 'Provider' refers to a value, but is being used as... Remove this comment to see the full error message
     <Provider store={store}>
-      // @ts-expect-error TS(2749): 'GameControlButtons' refers to a value, but is bei... Remove this comment to see the full error message
       <GameControlButtons />
     </Provider>
   );

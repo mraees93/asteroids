@@ -1,6 +1,7 @@
 import store from "../state/store";
 import { Asteroid } from "./asteroid";
 import { Bullet } from "./bullet";
+import { Vector2D } from "../state/reducer";
 import {
   setAsteroids,
   removeAsteroids,
@@ -11,23 +12,38 @@ import {
 const canvasHeight = store.getState().canvasHeight;
 const canvasWidth = store.getState().canvasWidth;
 
-export function addScoresAndResetGame() {
+// Define a structural interface for keyboard click states
+interface KeyState {
+  pressed: boolean;
+}
+
+interface InputKeys {
+  w: KeyState;
+  a: KeyState;
+  d: KeyState;
+  s: KeyState;
+  forward: KeyState;
+  left: KeyState;
+  right: KeyState;
+  reverse: KeyState;
+}
+
+export function addScoresAndResetGame(): void {
   const score = store.getState().score;
   const scores = store.getState().scores;
 
-  const addScoresToSessionStorage = (scores: any) => {
-    sessionStorage.setItem("Scores", JSON.stringify(scores));
+  const addScoresToSessionStorage = (scoresData: number[] | number) => {
+    sessionStorage.setItem("Scores", JSON.stringify(scoresData));
   };
 
   if (scores !== null) {
-    let updatedScores = [];
+    let updatedScores: number[] = [];
 
     if (typeof scores === "number") {
       updatedScores.push(scores, score);
       addScoresToSessionStorage(updatedScores);
     } else {
       updatedScores = [...scores];
-      // @ts-expect-error TS(2345): Argument of type 'number' is not assignable to par... Remove this comment to see the full error message
       updatedScores.push(score);
       addScoresToSessionStorage(updatedScores);
     }
@@ -38,7 +54,7 @@ export function addScoresAndResetGame() {
   store.dispatch(resetGame());
 }
 
-export function bulletCollidesWithAsteroid(asteroid: any, bullet: any) {
+export function bulletCollidesWithAsteroid(asteroid: Asteroid, bullet: Bullet): boolean {
   const xDifference = bullet.position.x - asteroid.position.x;
   const yDifference = bullet.position.y - asteroid.position.y;
 
@@ -46,17 +62,15 @@ export function bulletCollidesWithAsteroid(asteroid: any, bullet: any) {
     xDifference * xDifference + yDifference * yDifference
   );
 
-  if (distanceBetweenBulletAndAsteroid <= asteroid.radius + bullet.radius) {
-    return true;
-  }
-
-  return false;
+  return distanceBetweenBulletAndAsteroid <= asteroid.radius + bullet.radius;
 }
 
-export function playerCollidesWithAsteroid(asteroid: any, player: any) {
+export function playerCollidesWithAsteroid(asteroid: Asteroid, playerVertices: Vector2D[]): boolean {
   for (let i = 0; i < 3; i++) {
-    const frontOfPlayer = player[i];
-    const backOfPlayer = player[(i + 1) % 3];
+    const frontOfPlayer = playerVertices[i];
+    const backOfPlayer = playerVertices[(i + 1) % 3];
+
+    if (!frontOfPlayer || !backOfPlayer) continue;
 
     let directionX = backOfPlayer.x - frontOfPlayer.x;
     let directionY = backOfPlayer.y - frontOfPlayer.y;
@@ -97,7 +111,7 @@ export function playerCollidesWithAsteroid(asteroid: any, player: any) {
   return false;
 }
 
-export function checkPlayerInLineWithAsteroid(x: any, y: any, start: any, end: any) {
+export function checkPlayerInLineWithAsteroid(x: number, y: number, start: Vector2D, end: Vector2D): boolean {
   return (
     x >= Math.min(start.x, end.x) &&
     x <= Math.max(start.x, end.x) &&
@@ -106,11 +120,19 @@ export function checkPlayerInLineWithAsteroid(x: any, y: any, start: any, end: a
   );
 }
 
-export function removeObjectsIfOffCanvas(object: any, context: any, i: any) {
+export function removeObjectsIfOffCanvas(
+  object: Asteroid | Bullet, 
+  context: CanvasRenderingContext2D, 
+  i: number
+): void {
+  // Use the canvas configuration element attributes to read actual board dimensions safely
+  const boundaryWidth = context.canvas?.width || canvasWidth;
+  const boundaryHeight = context.canvas?.height || canvasHeight;
+
   if (
     object.position.x + object.radius < 0 ||
-    object.position.x - object.radius > context.width ||
-    object.position.y - object.radius > context.height ||
+    object.position.x - object.radius > boundaryWidth ||
+    object.position.y - object.radius > boundaryHeight ||
     object.position.y + object.radius < 0
   ) {
     if (object instanceof Bullet) store.dispatch(removeBullets(i));
@@ -118,9 +140,9 @@ export function removeObjectsIfOffCanvas(object: any, context: any, i: any) {
   }
 }
 
-export function randomizeAsteroids(index: any, radius: any) {
-  let x, y;
-  let vx, vy;
+export function randomizeAsteroids(index: number, radius: number): void {
+  let x: number, y: number;
+  let vx: number, vy: number;
   switch (index) {
     case 0:
       x = 0 - radius;
@@ -156,43 +178,21 @@ export function randomizeAsteroids(index: any, radius: any) {
   store.dispatch(
     setAsteroids(
       new Asteroid({
-        position: {
-          x: x,
-          y: y,
-        },
-        velocity: {
-          x: vx,
-          y: vy,
-        },
+        position: { x, y },
+        velocity: { x: vx, y: vy },
         radius,
-      })
+      }) as any
     )
   );
 }
 
-export const keys = {
-  w: {
-    pressed: false,
-  },
-  a: {
-    pressed: false,
-  },
-  d: {
-    pressed: false,
-  },
-  s: {
-    pressed: false,
-  },
-  forward: {
-    pressed: false,
-  },
-  left: {
-    pressed: false,
-  },
-  right: {
-    pressed: false,
-  },
-  reverse: {
-    pressed: false,
-  },
+export const keys: InputKeys = {
+  w: { pressed: false },
+  a: { pressed: false },
+  d: { pressed: false },
+  s: { pressed: false },
+  forward: { pressed: false },
+  left: { pressed: false },
+  right: { pressed: false },
+  reverse: { pressed: false },
 };

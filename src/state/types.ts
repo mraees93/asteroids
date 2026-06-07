@@ -12,5 +12,6 @@ const types = {
   GET_USERS_SCORES_SUCCESS: "GET_USERS_SCORES_SUCCESS",
   SET_GAME_OVER: "SET_GAME_OVER",
   SET_GAME_OVER_CLICK: "SET_GAME_OVER_CLICK",
-};
+} as const;
+
 export default types;
