@@ -13,7 +13,7 @@ An advanced client-side architectural showcase that brings the classic Asteroids
 * **Predictable High-Frequency State:** Integrated **Redux** to normalize and store active game variables (including ship coordinates, active projectiles, lives, and scoring metrics), ensuring a single source of truth for the game loop.
 * **Asynchronous Side-Effect Pipelines:** Utilizes **Redux Saga** generator functions (`function*`) as an architecture experiment to handle decoupled asynchronous data pipelines, managing local scoreboard data persistence outside of the UI view layer.
 * **Strict Type Safety:** Migrated from legacy JavaScript to strict **TypeScript**, establishing rigid type contracts for spatial vectors, entity classes, and component properties to catch runtime exceptions at compile-time.
-* **Defensive Integration Testing:** Features a comprehensive unit testing suite using **React Testing Library** and Jest. Tests wrap Redux contexts, mock state data, and validate component rendering cycles, modal visibility, and layout changes under specific state modifications.
+* **Defensive Testing:** Features a comprehensive unit testing suite using **React Testing Library** and Jest. Tests wrap Redux contexts, mock state data, and validate component rendering cycles, modal visibility, and layout changes under specific state modifications.
 
 ## 🛠️ Tech Stack
 
