@@ -1,0 +1,33 @@
+name: React Unit Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          # This tells GitHub to look for package-lock.json inside asteroids
+          cache: 'npm'
+          cache-dependency-path: asteroids/package-lock.json
+
+      # The working-directory line tells GitHub to go inside the asteroids folder
+      - name: Install dependencies
+        working-directory: ./asteroids
+        run: npm ci
+
+      # This runs the tests inside your asteroids folder
+      - name: Run unit tests
+        working-directory: ./asteroids
+        run: npm test -- --watchAll=false
