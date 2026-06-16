@@ -24,4 +24,4 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Run unit tests
-        run: npm test -- --watchAll=false
+        run: npm test -- --watchAll=false --verbose
