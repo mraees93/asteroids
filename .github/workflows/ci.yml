@@ -18,16 +18,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          # This tells GitHub to look for package-lock.json inside asteroids
-          cache: 'npm'
-          cache-dependency-path: asteroids/package-lock.json
+          cache: 'npm' # This looks for package-lock.json at the root level
 
-      # The working-directory line tells GitHub to go inside the asteroids folder
       - name: Install dependencies
-        working-directory: ./asteroids
         run: npm ci
 
-      # This runs the tests inside your asteroids folder
       - name: Run unit tests
-        working-directory: ./asteroids
         run: npm test -- --watchAll=false
