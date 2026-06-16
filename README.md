@@ -1,11 +1,9 @@
-# Asteroids Game Engine (TypeScript Refactor)
+# Asteroids Game Engine 
 
-![TypeScript](https://shields.io)
-![React](https://shields.io)
-![Redux](https://shields.io)
-![Tests](https://shields.io)
+[![React Unit Tests](https://github.com/mraees93/asteroids/actions/workflows/ci.yml/badge.svg)](https://github.com/mraees93/asteroids/actions/workflows/ci.yml)
 
-An advanced client-side architectural showcase that brings the classic Asteroids arcade game into a modern, type-safe React environment. This project serves as a performance and state management study, demonstrating strict data contracts, manual frame rendering, and defensive unit testing patterns.
+
+An advanced client-side architectural showcase that brings the classic Asteroids arcade game into modern functional components and Typescript React environment. This project serves as a performance and state management study, demonstrating strict data contracts, manual frame rendering, and defensive unit testing patterns.
 
 ## 🚀 Key Features & Architecture
 
@@ -20,7 +18,7 @@ An advanced client-side architectural showcase that brings the classic Asteroids
 * **Frontend:** React (Functional Components, Hooks)
 * **Graphics:** HTML5 Canvas API
 * **State Management:** Redux, Redux Saga (Middleware)
-* **Type System:** TypeScript (Strict Compilation Mode)
+* **Type System:** TypeScript
 * **Testing Suite:** Jest, React Testing Library (RTL)
 
 ## 📦 File Structure
